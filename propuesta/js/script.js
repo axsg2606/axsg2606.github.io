@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let musicPlaying = false;
     let messageTimeouts = [];
     let messageIndex = 0;
+    let fontIndex = 0; // Para alternar fuentes
 
     const cinematicMessageTexts = [
         'Lucía Abigail Ruiz Diaz Robles...',
@@ -29,6 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
         'No sabía cómo decírtelo...',
         'Pero hoy encontré el valor...',
         'Y quisiera saber si...'
+    ];
+
+    // Palabras clave que queremos resaltar en rojo y subrayadas
+    const highlightWords = [
+        'Lucía', 'Abigail', 'Ruiz', 'Diaz', 'Robles',
+        'importante', 'serio', 'valor', 'si',
+        'decirte', 'decírtelo', 'quisiera'
     ];
 
     // ======================= FUNCIONES =======================
@@ -66,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
             activeMusic = audioElement;
             musicPlaying = true;
             musicToggle.classList.remove('muted');
+            if (audioElement.muted) {
+                audioElement.muted = false;
+            }
         }).catch(err => {
             console.log('Autoplay bloqueado, esperando interacción del usuario');
             musicPlaying = false;
@@ -90,18 +101,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======================= AUTOPLAY =======================
-    playMusic(bgMusic);
-
-    document.addEventListener('click', () => {
-        if (!musicPlaying && !section2.classList.contains('active')) {
-            playMusic(bgMusic);
-        }
+    bgMusic.play().then(() => {
+        bgMusic.muted = false;
+        activeMusic = bgMusic;
+        musicPlaying = true;
+        musicToggle.classList.remove('muted');
+    }).catch(err => {
+        console.log('Autoplay con sonido bloqueado, se activará con interacción');
+        musicPlaying = false;
+        musicToggle.classList.add('muted');
     });
 
-    document.addEventListener('touchstart', () => {
-        if (!musicPlaying && !section2.classList.contains('active')) {
-            playMusic(bgMusic);
-        }
+    const interactionEvents = ['click', 'touchstart', 'keydown', 'pointerdown', 'scroll'];
+    interactionEvents.forEach(event => {
+        document.addEventListener(event, () => {
+            if (!musicPlaying) {
+                playMusic(bgMusic);
+            }
+        }, { once: true, passive: true });
     });
 
     // ======================= ANIMACIÓN DE BIENVENIDA =======================
@@ -118,10 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
         startCinematicSequence();
     });
 
-    // ======================= SECUENCIA CINEMATOGRÁFICA (LETRA POR LETRA) =======================
+    // ======================= SECUENCIA CINEMATOGRÁFICA (LETRA POR LETRA, MÁS RÁPIDA) =======================
     function startCinematicSequence() {
         cinematicMessages.innerHTML = '';
         messageIndex = 0;
+        fontIndex = 0;
         showNextCinematicMessage();
     }
 
@@ -134,47 +152,124 @@ document.addEventListener('DOMContentLoaded', () => {
         const text = cinematicMessageTexts[messageIndex];
         const msgContainer = document.createElement('div');
         msgContainer.className = 'cinematic-message';
+
+        // Alternar fuentes: font-1, font-2, font-3 cíclicamente
+        const fontClass = `font-${(fontIndex % 3) + 1}`;
+        msgContainer.classList.add(fontClass);
+        fontIndex++;
+
         cinematicMessages.appendChild(msgContainer);
 
-        // Convertir el texto en letras (caracteres) individuales
+        // Dividir el texto en letras, pero marcar palabras clave
         const characters = text.split('');
         let charIndex = 0;
 
         function showNextCharacter() {
             if (charIndex >= characters.length) {
-                // Todas las letras mostradas: pausa dramática antes de desvanecer
+                // Pausa breve y luego salir
                 const exitTimeout = setTimeout(() => {
                     msgContainer.classList.add('exit');
                     const removeTimeout = setTimeout(() => {
                         msgContainer.remove();
                         messageIndex++;
                         showNextCinematicMessage();
-                    }, 2000); // Tiempo de salida lento (2 segundos)
+                    }, 1200); // Salida más rápida
                     messageTimeouts.push(removeTimeout);
-                }, 3000); // Pausa de 3 segundos con el mensaje completo
+                }, 1500); // Pausa de 1.5s en lugar de 3s
                 messageTimeouts.push(exitTimeout);
                 return;
             }
 
-            // Crear span para cada letra
             const letterSpan = document.createElement('span');
             letterSpan.className = 'cinematic-letter';
             letterSpan.textContent = characters[charIndex];
             msgContainer.appendChild(letterSpan);
 
-            // Forzar reflow y activar la animación
             void letterSpan.offsetWidth;
             letterSpan.classList.add('visible');
 
             charIndex++;
-            // Intervalo entre letras: 150 ms (más lento para mayor suspenso)
-            const letterTimeout = setTimeout(showNextCharacter, 150);
+            const letterTimeout = setTimeout(showNextCharacter, 80); // Más rápido (80ms)
             messageTimeouts.push(letterTimeout);
         }
 
-        // Pequeño retraso antes de comenzar a revelar las letras (1 segundo)
-        const startTimeout = setTimeout(showNextCharacter, 1000);
+        // Pequeño retraso antes de comenzar (500ms en lugar de 1000ms)
+        const startTimeout = setTimeout(showNextCharacter, 500);
         messageTimeouts.push(startTimeout);
+
+        // Después de agregar todas las letras, resaltamos palabras clave
+        // Esto se hará al final de la animación para que el resaltado aparezca cuando el mensaje esté completo.
+        const highlightTimeout = setTimeout(() => {
+            highlightWordsInContainer(msgContainer, text);
+        }, characters.length * 80 + 600);
+        messageTimeouts.push(highlightTimeout);
+    }
+
+    function highlightWordsInContainer(container, fullText) {
+        // Recorremos los span.cinematic-letter y combinamos para resaltar palabras
+        const letterSpans = container.querySelectorAll('.cinematic-letter');
+        if (!letterSpans.length) return;
+
+        // Reconstruir el texto plano desde los spans
+        let plainText = '';
+        const spanArray = Array.from(letterSpans);
+        spanArray.forEach(span => {
+            plainText += span.textContent;
+        });
+
+        // Buscar palabras clave y envolver en span.highlight-red
+        highlightWords.forEach(word => {
+            const regex = new RegExp(`(${word})`, 'gi');
+            if (plainText.match(regex)) {
+                // Envolvemos la palabra en el DOM
+                // Estrategia: recorrer spans y agrupar si coincide
+                let currentIndex = 0;
+                let match;
+                while ((match = regex.exec(plainText)) !== null) {
+                    const start = match.index;
+                    const end = start + match[0].length;
+
+                    // Encontrar los spans correspondientes
+                    let charPos = 0;
+                    let startSpan = null;
+                    let endSpan = null;
+                    let firstSpanFound = false;
+
+                    for (let i = 0; i < spanArray.length; i++) {
+                        const span = spanArray[i];
+                        const spanLength = span.textContent.length;
+                        if (!firstSpanFound && charPos + spanLength > start) {
+                            startSpan = span;
+                            firstSpanFound = true;
+                        }
+                        if (firstSpanFound && charPos + spanLength >= end) {
+                            endSpan = span;
+                            break;
+                        }
+                        charPos += spanLength;
+                    }
+
+                    if (startSpan && endSpan) {
+                        // Crear un contenedor de resaltado
+                        const highlightSpan = document.createElement('span');
+                        highlightSpan.className = 'highlight-red';
+
+                        // Mover los spans hijos al nuevo contenedor
+                        let current = startSpan;
+                        while (current && current !== endSpan.nextSibling) {
+                            const next = current.nextSibling;
+                            highlightSpan.appendChild(current);
+                            current = next;
+                        }
+
+                        // Insertar el contenedor en el lugar del primer span
+                        if (startSpan.parentNode === container) {
+                            container.insertBefore(highlightSpan, startSpan);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     // ======================= BOTÓN NEXT 2 =======================
@@ -186,9 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ======================= BOTONES SÍ/NO =======================
     btnSi.addEventListener('click', () => {
-        // Restablecer escala
         btnSi.style.transform = 'scale(1)';
-
         celebration.classList.remove('hidden');
         createCelebrationHearts();
         btnSi.textContent = '¡Te amo! 💖';
