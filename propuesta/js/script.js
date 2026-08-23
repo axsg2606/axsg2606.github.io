@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ======================= INTENTO DE AUTOPLAY INMEDIATO =======================
+    // ======================= AUTOPLAY =======================
     playMusic(bgMusic);
 
     document.addEventListener('click', () => {
@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         startCinematicSequence();
     });
 
-    // ======================= SECUENCIA CINEMATOGRÁFICA =======================
+    // ======================= SECUENCIA CINEMATOGRÁFICA (LETRA POR LETRA) =======================
     function startCinematicSequence() {
         cinematicMessages.innerHTML = '';
         messageIndex = 0;
@@ -136,38 +136,45 @@ document.addEventListener('DOMContentLoaded', () => {
         msgContainer.className = 'cinematic-message';
         cinematicMessages.appendChild(msgContainer);
 
-        const words = text.split(' ');
-        let wordIndex = 0;
+        // Convertir el texto en letras (caracteres) individuales
+        const characters = text.split('');
+        let charIndex = 0;
 
-        function showNextWord() {
-            if (wordIndex >= words.length) {
+        function showNextCharacter() {
+            if (charIndex >= characters.length) {
+                // Todas las letras mostradas: pausa dramática antes de desvanecer
                 const exitTimeout = setTimeout(() => {
                     msgContainer.classList.add('exit');
                     const removeTimeout = setTimeout(() => {
                         msgContainer.remove();
                         messageIndex++;
                         showNextCinematicMessage();
-                    }, 1000);
+                    }, 2000); // Tiempo de salida lento (2 segundos)
                     messageTimeouts.push(removeTimeout);
-                }, 1500);
+                }, 3000); // Pausa de 3 segundos con el mensaje completo
                 messageTimeouts.push(exitTimeout);
                 return;
             }
 
-            const wordSpan = document.createElement('span');
-            wordSpan.className = 'cinematic-word';
-            wordSpan.textContent = words[wordIndex];
-            msgContainer.appendChild(wordSpan);
+            // Crear span para cada letra
+            const letterSpan = document.createElement('span');
+            letterSpan.className = 'cinematic-letter';
+            letterSpan.textContent = characters[charIndex];
+            msgContainer.appendChild(letterSpan);
 
-            void wordSpan.offsetWidth;
-            wordSpan.classList.add('visible');
+            // Forzar reflow y activar la animación
+            void letterSpan.offsetWidth;
+            letterSpan.classList.add('visible');
 
-            wordIndex++;
-            const wordTimeout = setTimeout(showNextWord, 250);
-            messageTimeouts.push(wordTimeout);
+            charIndex++;
+            // Intervalo entre letras: 150 ms (más lento para mayor suspenso)
+            const letterTimeout = setTimeout(showNextCharacter, 150);
+            messageTimeouts.push(letterTimeout);
         }
 
-        showNextWord();
+        // Pequeño retraso antes de comenzar a revelar las letras (1 segundo)
+        const startTimeout = setTimeout(showNextCharacter, 1000);
+        messageTimeouts.push(startTimeout);
     }
 
     // ======================= BOTÓN NEXT 2 =======================
@@ -179,9 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ======================= BOTONES SÍ/NO =======================
     btnSi.addEventListener('click', () => {
-        // ✅ CORRECCIÓN: restablecer la escala del botón "Sí"
+        // Restablecer escala
         btnSi.style.transform = 'scale(1)';
-        
+
         celebration.classList.remove('hidden');
         createCelebrationHearts();
         btnSi.textContent = '¡Te amo! 💖';
