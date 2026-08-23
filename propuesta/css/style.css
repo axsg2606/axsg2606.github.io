@@ -11,6 +11,7 @@
     --fuente-principal: 'Poppins', sans-serif;
     --fuente-romantica: 'Dancing Script', cursive;
     --fuente-elegante: 'Great Vibes', cursive;
+    --fuente-cinematografica: 'Cormorant Garamond', serif;
 }
 
 * {
@@ -311,27 +312,37 @@ body {
     animation: heartBeat 1.5s infinite;
 }
 
-/* ======================= BOTÓN CONTINUE CENTRADO Y GRANDE ======================= */
+/* ======================= BOTÓN CONTINUE NEUTRAL ======================= */
 .btn-continue {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) scale(1);
     z-index: 20;
-    background: linear-gradient(135deg, #ff6b81, #c0392b);
-    box-shadow: 0 0 30px rgba(255,107,129,0.8);
-    animation: pulseGlow 2s infinite;
-    font-size: 1.8rem;
-    padding: 20px 40px;
-    border-radius: 60px;
-    letter-spacing: 2px;
+    background: rgba(50, 50, 50, 0.8);
+    color: #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 14px 30px;
+    font-size: 1.2rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s, border-color 0.3s, color 0.3s;
+    backdrop-filter: blur(5px);
+    box-shadow: none;
 }
 .btn-continue.hidden {
     display: none;
 }
-@keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 30px rgba(255,107,129,0.8); transform: translate(-50%, -50%) scale(1); }
-    50% { box-shadow: 0 0 60px rgba(255,107,129,1); transform: translate(-50%, -50%) scale(1.05); }
+.btn-continue:hover {
+    background: rgba(70, 70, 70, 0.9);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: #fff;
+    transform: translate(-50%, -50%) scale(1.03);
+}
+.btn-continue .btn-icon {
+    display: none; /* Ocultamos el corazón para que sea más neutral */
 }
 
 /* ======================= SECCIÓN CINEMATOGRÁFICA ======================= */
@@ -340,7 +351,6 @@ body {
     z-index: 100;
 }
 
-/* Contenedor de mensajes cinematográficos */
 .cinematic-messages {
     width: 100%;
     height: 100%;
@@ -351,37 +361,48 @@ body {
     overflow: hidden;
 }
 
-/* Cada mensaje completo */
 .cinematic-message {
     position: absolute;
     text-align: center;
     padding: 0 20px;
     opacity: 1;
-    transition: opacity 1.5s ease, transform 1.5s ease;
+    transition: opacity 1.2s ease, transform 1.2s ease;
     transform: scale(1);
     color: #fff;
-    font-family: var(--fuente-elegante);
-    font-size: clamp(2.5rem, 7vw, 4.5rem);
-    text-shadow: 0 0 40px rgba(255,255,255,0.8);
-    letter-spacing: 4px;
+    font-size: clamp(2rem, 7vw, 4rem);
+    text-shadow: 0 0 30px rgba(255,255,255,0.7);
+    letter-spacing: 3px;
     max-width: 900px;
     line-height: 1.4;
-    animation: textPulse 3s ease-in-out infinite;
+    animation: textPulse 2.5s ease-in-out infinite;
+}
+
+/* Fuentes alternativas para los mensajes */
+.cinematic-message.font-1 {
+    font-family: var(--fuente-elegante);
+}
+.cinematic-message.font-2 {
+    font-family: var(--fuente-cinematografica);
+    font-style: italic;
+    font-weight: 500;
+}
+.cinematic-message.font-3 {
+    font-family: var(--fuente-romantica);
+    font-weight: 700;
 }
 
 .cinematic-message.exit {
     opacity: 0;
-    transform: scale(1.15);
-    transition: opacity 2s ease, transform 2s ease;
+    transform: scale(1.1);
+    transition: opacity 1.2s ease, transform 1.2s ease;
 }
 
-/* Animación de pulso sutil para el texto */
 @keyframes textPulse {
     0%, 100% {
-        text-shadow: 0 0 40px rgba(255,255,255,0.8), 0 0 80px rgba(255,255,255,0.4);
+        text-shadow: 0 0 30px rgba(255,255,255,0.7), 0 0 60px rgba(255,255,255,0.3);
     }
     50% {
-        text-shadow: 0 0 60px rgba(255,255,255,1), 0 0 120px rgba(255,255,255,0.6);
+        text-shadow: 0 0 50px rgba(255,255,255,0.9), 0 0 100px rgba(255,255,255,0.5);
     }
 }
 
@@ -389,16 +410,26 @@ body {
 .cinematic-letter {
     display: inline-block;
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
-    filter: blur(4px);
-    margin-right: 0.1em;
+    transform: translateY(15px);
+    transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+    filter: blur(3px);
+    margin-right: 0.08em;
     white-space: pre-wrap;
 }
 .cinematic-letter.visible {
     opacity: 1;
     transform: translateY(0);
     filter: blur(0);
+}
+
+/* Palabras destacadas en rojo y subrayadas */
+.highlight-red {
+    color: #ff4d4d;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+    font-weight: 700;
+    text-shadow: 0 0 12px rgba(255, 77, 77, 0.8);
 }
 
 /* ======================= SECCIÓN 3: PROPUESTA ======================= */
@@ -503,12 +534,12 @@ body {
         padding: 14px 25px;
     }
     .cinematic-message {
-        font-size: clamp(2rem, 8vw, 3rem);
-        letter-spacing: 3px;
+        font-size: clamp(1.8rem, 8vw, 3rem);
+        letter-spacing: 2px;
     }
     .btn-continue {
-        font-size: 1.4rem;
-        padding: 16px 30px;
+        font-size: 1rem;
+        padding: 12px 24px;
     }
 }
 
@@ -528,7 +559,7 @@ body {
         gap: 15px;
     }
     .btn-continue {
-        font-size: 1.2rem;
-        padding: 14px 25px;
+        font-size: 0.9rem;
+        padding: 10px 20px;
     }
 }
