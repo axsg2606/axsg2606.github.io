@@ -334,24 +334,13 @@ body {
     50% { box-shadow: 0 0 60px rgba(255,107,129,1); transform: translate(-50%, -50%) scale(1.05); }
 }
 
-/* ======================= ANIMACIÓN DE PALABRAS ======================= */
-.cinematic-word {
-    display: inline-block;
-    opacity: 0;
-    transform: translateY(15px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    margin-right: 0.4em;
-}
-.cinematic-word.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 /* ======================= SECCIÓN CINEMATOGRÁFICA ======================= */
 .cinematic-section {
     background: var(--negro) !important;
     z-index: 100;
 }
+
+/* Contenedor de mensajes cinematográficos */
 .cinematic-messages {
     width: 100%;
     height: 100%;
@@ -359,24 +348,57 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
+    overflow: hidden;
 }
+
+/* Cada mensaje completo */
 .cinematic-message {
     position: absolute;
     text-align: center;
     padding: 0 20px;
     opacity: 1;
-    transition: opacity 1s ease, transform 1s ease;
+    transition: opacity 1.5s ease, transform 1.5s ease;
     transform: scale(1);
     color: #fff;
     font-family: var(--fuente-elegante);
-    font-size: clamp(2rem, 6vw, 4rem);
-    text-shadow: 0 0 30px rgba(255,255,255,0.6);
-    letter-spacing: 2px;
-    max-width: 800px;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    text-shadow: 0 0 40px rgba(255,255,255,0.8);
+    letter-spacing: 4px;
+    max-width: 900px;
+    line-height: 1.4;
+    animation: textPulse 3s ease-in-out infinite;
 }
+
 .cinematic-message.exit {
     opacity: 0;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    transition: opacity 2s ease, transform 2s ease;
+}
+
+/* Animación de pulso sutil para el texto */
+@keyframes textPulse {
+    0%, 100% {
+        text-shadow: 0 0 40px rgba(255,255,255,0.8), 0 0 80px rgba(255,255,255,0.4);
+    }
+    50% {
+        text-shadow: 0 0 60px rgba(255,255,255,1), 0 0 120px rgba(255,255,255,0.6);
+    }
+}
+
+/* Letras individuales */
+.cinematic-letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease;
+    filter: blur(4px);
+    margin-right: 0.1em;
+    white-space: pre-wrap;
+}
+.cinematic-letter.visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
 }
 
 /* ======================= SECCIÓN 3: PROPUESTA ======================= */
@@ -481,7 +503,8 @@ body {
         padding: 14px 25px;
     }
     .cinematic-message {
-        font-size: clamp(1.8rem, 8vw, 3rem);
+        font-size: clamp(2rem, 8vw, 3rem);
+        letter-spacing: 3px;
     }
     .btn-continue {
         font-size: 1.4rem;
