@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function showSection(section) {
         [section1, section2, section3].forEach(s => s.classList.remove('active'));
         section.classList.add('active');
-        // Si la sección es scrollable, asegurarse de que esté al inicio
         if (section.classList.contains('scrollable')) {
             section.scrollTop = 0;
         }
@@ -68,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             musicPlaying = true;
             musicToggle.classList.remove('muted');
         }).catch(err => {
-            console.log('Autoplay bloqueado, esperando interacción');
+            console.log('Autoplay bloqueado, esperando interacción del usuario');
             musicPlaying = false;
             musicToggle.classList.add('muted');
         });
@@ -90,10 +89,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Intentar reproducir al cargar
+    // ======================= INTENTO DE AUTOPLAY INMEDIATO =======================
+    // Se intenta reproducir la música de fondo al cargar la página.
     playMusic(bgMusic);
 
+    // Si el navegador bloquea el autoplay, se activará con el primer clic o toque en cualquier parte.
     document.addEventListener('click', () => {
+        if (!musicPlaying && !section2.classList.contains('active')) {
+            playMusic(bgMusic);
+        }
+    });
+
+    // También se intenta con el evento 'touchstart' para dispositivos móviles.
+    document.addEventListener('touchstart', () => {
         if (!musicPlaying && !section2.classList.contains('active')) {
             playMusic(bgMusic);
         }
