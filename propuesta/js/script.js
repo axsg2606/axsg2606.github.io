@@ -90,17 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======================= INTENTO DE AUTOPLAY INMEDIATO =======================
-    // Se intenta reproducir la música de fondo al cargar la página.
     playMusic(bgMusic);
 
-    // Si el navegador bloquea el autoplay, se activará con el primer clic o toque en cualquier parte.
     document.addEventListener('click', () => {
         if (!musicPlaying && !section2.classList.contains('active')) {
             playMusic(bgMusic);
         }
     });
 
-    // También se intenta con el evento 'touchstart' para dispositivos móviles.
     document.addEventListener('touchstart', () => {
         if (!musicPlaying && !section2.classList.contains('active')) {
             playMusic(bgMusic);
@@ -182,6 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ======================= BOTONES SÍ/NO =======================
     btnSi.addEventListener('click', () => {
+        // ✅ CORRECCIÓN: restablecer la escala del botón "Sí"
+        btnSi.style.transform = 'scale(1)';
+        
         celebration.classList.remove('hidden');
         createCelebrationHearts();
         btnSi.textContent = '¡Te amo! 💖';
